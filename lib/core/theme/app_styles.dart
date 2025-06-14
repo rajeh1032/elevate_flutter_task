@@ -24,4 +24,18 @@ abstract class AppStyles {
       fontSize: 16.sp, fontWeight: FontWeight.bold, color: AppColors.darkBlue);
   static TextStyle bold14darkBlue = GoogleFonts.inter(
       fontSize: 14.sp, fontWeight: FontWeight.bold, color: AppColors.darkBlue);
+
+  static TextStyle regular20darkBlue = GoogleFonts.inter(
+      fontSize: 20.sp, fontWeight: FontWeight.w500, color: AppColors.darkBlue);
+  static TextStyle regular16darkBlue = GoogleFonts.inter(
+      fontSize: 16.sp, fontWeight: FontWeight.w500, color: AppColors.darkBlue);
+  static TextStyle regular14darkBlue = GoogleFonts.inter(
+      fontSize: 14.sp, fontWeight: FontWeight.w500, color: AppColors.darkBlue);
+
+  static TextStyle regular20lightBlue = GoogleFonts.inter(
+      fontSize: 20.sp, fontWeight: FontWeight.w500, color: AppColors.lightBlue);
+  static TextStyle regular16lightBlue = GoogleFonts.inter(
+      fontSize: 16.sp, fontWeight: FontWeight.w500, color: AppColors.lightBlue);
+  static TextStyle regular14lightBlue = GoogleFonts.inter(
+      fontSize: 14.sp, fontWeight: FontWeight.w500, color: AppColors.lightBlue);
 }
