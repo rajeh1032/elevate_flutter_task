@@ -5,9 +5,21 @@ import 'package:movies/core/theme/app_colors.dart';
 import 'package:movies/core/theme/app_styles.dart';
 
 class ProductCard extends StatelessWidget {
-  final int index;
+  String image;
+  String title;
+  double price;
 
-  const ProductCard({super.key, required this.index});
+  String description;
+  String? rating;
+
+  ProductCard(
+      {required this.image,
+      required this.title,
+      required this.price,
+      required this.description,
+      this.rating,
+      Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +46,7 @@ class ProductCard extends StatelessWidget {
               width: double.infinity,
               child: Image.asset(
                 //todo: add image
-                AppAssets.shoes,
+                image,
                 fit: BoxFit.cover,
               ),
             ),
@@ -52,7 +64,7 @@ class ProductCard extends StatelessWidget {
                     children: [
                       Text(
                         //todo: add title
-                        'Nike Air Max 90',
+                        title,
                         style: AppStyles.regular16darkBlue.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -62,7 +74,7 @@ class ProductCard extends StatelessWidget {
                       SizedBox(height: 2.h),
                       Text(
                         //todo: add description
-                        'Nike shoes flexible for women',
+                        description,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppStyles.regular16darkBlue.copyWith(
@@ -77,7 +89,7 @@ class ProductCard extends StatelessWidget {
                     children: [
                       Text(
                         //todo: add price
-                        'EGP 1,200',
+                        'EGP ${price}',
                         style: AppStyles.regular16darkBlue.copyWith(
                           fontWeight: FontWeight.bold,
                           fontSize: 14.sp,
@@ -108,7 +120,7 @@ class ProductCard extends StatelessWidget {
                             ),
                             SizedBox(width: 2.w),
                             Text(
-                              '4.8',
+                              rating ?? '4.5',
                               style: AppStyles.regular16darkBlue.copyWith(
                                 fontSize: 12.sp,
                               ),

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:movies/core/di/di.dart';
 import 'package:movies/core/routes/rotes.dart';
 import 'package:movies/core/routes/routes_name.dart';
 import 'package:movies/core/theme/app_theme.dart';
@@ -9,7 +10,7 @@ import 'package:movies/core/utils/my_bloc_observer.dart';
 
 void main() {
    Bloc.observer = MyBlocObserver();
-  //  configureDependencies(); 
+   configureDependencies(); 
   runApp(const MyApp());
 }
 
