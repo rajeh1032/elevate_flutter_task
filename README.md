@@ -1,16 +1,39 @@
 # elevate_flutter_task
 
-A new Flutter project.
+A clean Flutter application that fetches and displays product data using BLoC and Clean Architecture principles.
 
-## Getting Started
+This project uses a layered structure based on Clean Architecture:
 
-This project is a starting point for a Flutter application.
+- **core/** contains API manager, dependency injection, routing, theming, and utility classes
+- **Data/** includes data models, remote data sources, and repository implementations
+- **Domain/** contains entities, abstract repositories, and use cases
+- **presentation/** holds UI and Cubit state management logic for screens like home screen
 
-A few resources to get you started if this is your first Flutter project:
+To run the app:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+1. Clone the repository:
+   `git clone https://github.com/rajeh1032/elevate_flutter_task.git`
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+2. Navigate to the project directory and install dependencies:
+   `flutter pub get`
+
+3. Then run the project:
+   `flutter run`
+
+Key Features:
+
+- Clean Architecture structure
+- BLoC for state management
+- Dependency Injection
+- Remote API integration
+- Modular code with reusable components and styles
+
+Example important files:
+
+- `Data/Models/GetProductsDm.dart` – Product data model
+- `Domain/entity/GetProductsEntity.dart` – Entity shared across layers
+- `core/api manager/api_manager.dart` – Handles API requests
+- `presentation/home_screen/ui/` – Main UI
+- `core/di/di.dart` – Dependency injection setup
+
+This task is meant for practice and evaluation. Feel free to improve or extend the project.
