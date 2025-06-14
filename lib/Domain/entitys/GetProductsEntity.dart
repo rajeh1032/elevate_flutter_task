@@ -12,7 +12,6 @@ class GetProductsEntity {
   GetProductsEntity.fromJson(dynamic json) {
     id = json['id'];
     title = json['title'];
-    // تحويل آمن من int إلى double
     price = json['price'] != null ? (json['price'] as num).toDouble() : null;
     description = json['description'];
     category = json['category'];
@@ -50,7 +49,6 @@ class RatingEntity {
   });
 
   RatingEntity.fromJson(dynamic json) {
-    // تحويل آمن من int إلى double
     rate = json['rate'] != null ? (json['rate'] as num).toDouble() : null;
     count = json['count'];
   }
