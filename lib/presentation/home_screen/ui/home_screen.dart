@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: product.title ?? "No Title",
                   description: product.description ?? "No Description",
                   price: product.price ?? 0,
-                  rating: product.rating.toString() ?? "No Rating",
+                  rating: product.rating?.rate ?? 0,
                 );
               },
             ),

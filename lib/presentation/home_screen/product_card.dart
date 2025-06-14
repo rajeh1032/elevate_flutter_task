@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:movies/core/assets/app_assets.dart';
@@ -10,7 +11,7 @@ class ProductCard extends StatelessWidget {
   double price;
 
   String description;
-  String? rating;
+  double? rating;
 
   ProductCard(
       {required this.image,
@@ -29,13 +30,6 @@ class ProductCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: AppColors.lightBlue, width: 2.w),
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,10 +38,20 @@ class ProductCard extends StatelessWidget {
             flex: 3,
             child: Container(
               width: double.infinity,
-              child: Image.asset(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: AppColors.lightBlue, width: 2.w),
+                color: Colors.white,
+              ),
+              child: CachedNetworkImage(
                 //todo: add image
-                image,
+                imageUrl: image ?? "",
                 fit: BoxFit.cover,
+                placeholder: (context, url) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                errorWidget: (context, url, error) => Icon(Icons.error),
               ),
             ),
           ),
@@ -120,7 +124,8 @@ class ProductCard extends StatelessWidget {
                             ),
                             SizedBox(width: 2.w),
                             Text(
-                              rating ?? '4.5',
+                              //todo: add rating
+                              "review(${rating})" ?? '',
                               style: AppStyles.regular16darkBlue.copyWith(
                                 fontSize: 12.sp,
                               ),

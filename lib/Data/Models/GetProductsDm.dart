@@ -14,7 +14,7 @@ class GetProductsDm extends GetProductsEntity {
   GetProductsDm.fromJson(dynamic json) {
     id = json['id'];
     title = json['title'];
-    price = json['price'];
+    price = json['price'] != null ? (json['price'] as num).toDouble() : null;
     description = json['description'];
     category = json['category'];
     image = json['image'];
@@ -43,7 +43,7 @@ class RatingDm extends RatingEntity {
   });
 
   RatingDm.fromJson(dynamic json) {
-    rate = json['rate'];
+    rate = json['rate'] != null ? (json['rate'] as num).toDouble() : null;
     count = json['count'];
   }
 

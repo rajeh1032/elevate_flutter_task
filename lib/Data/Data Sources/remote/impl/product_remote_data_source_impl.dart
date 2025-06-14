@@ -28,7 +28,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         print("RESPONSE Profile BODY: ${response.data}");
         print("STATUS Profile CODE: ${response.statusCode}");
 
-        final List<GetProductsDm> productList = (response.data as List)
+          final List<GetProductsDm> productList = (response.data as List)
             .map((e) => GetProductsDm.fromJson(e))
             .toList();
 

@@ -1,22 +1,25 @@
 class GetProductsEntity {
   GetProductsEntity({
-      this.id, 
-      this.title, 
-      this.price, 
-      this.description, 
-      this.category, 
-      this.image, 
-      this.rating,});
+    this.id,
+    this.title,
+    this.price,
+    this.description,
+    this.category,
+    this.image,
+    this.rating,
+  });
 
   GetProductsEntity.fromJson(dynamic json) {
     id = json['id'];
     title = json['title'];
-    price = json['price'];
+    // تحويل آمن من int إلى double
+    price = json['price'] != null ? (json['price'] as num).toDouble() : null;
     description = json['description'];
     category = json['category'];
     image = json['image'];
     rating = json['rating'] != null ? RatingEntity.fromJson(json['rating']) : null;
   }
+
   int? id;
   String? title;
   double? price;
@@ -38,18 +41,20 @@ class GetProductsEntity {
     }
     return map;
   }
-
 }
 
 class RatingEntity {
   RatingEntity({
-      this.rate, 
-      this.count,});
+    this.rate,
+    this.count,
+  });
 
   RatingEntity.fromJson(dynamic json) {
-    rate = json['rate'];
+    // تحويل آمن من int إلى double
+    rate = json['rate'] != null ? (json['rate'] as num).toDouble() : null;
     count = json['count'];
   }
+
   double? rate;
   int? count;
 
@@ -59,5 +64,4 @@ class RatingEntity {
     map['count'] = count;
     return map;
   }
-
 }
