@@ -56,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: AppStyles.bold20LightBlue,
                   ),
                   SizedBox(height: 8.h),
+                  SizedBox(height: 8.h),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 32.w),
                     child: Text(
