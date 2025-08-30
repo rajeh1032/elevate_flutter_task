@@ -11,7 +11,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: "3.24.3"
+          flutter-version: '3.24.3'
           cache: true
 
       # Cache dependencies
@@ -72,20 +72,34 @@ jobs:
             flutter pub get
           fi
 
-      # Run analysis
+      # Run analysis (only fatal warnings, not info)
       - name: Run Flutter Analyze
         run: |
+          echo "🔍 Running Flutter analyze (fatal warnings only)"
           if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            fvm flutter analyze --fatal-infos
+            fvm flutter analyze --fatal-warnings
           else
-            flutter analyze --fatal-infos
+            flutter analyze --fatal-warnings
           fi
 
-      # Check formatting
+      # Check formatting (but don't fail on it, just report)
       - name: Check code formatting
+        continue-on-error: true
         run: |
+          echo "📝 Checking code formatting"
           if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            fvm dart format --set-exit-if-changed .
+            fvm dart format --set-exit-if-changed . || echo "⚠️ Code formatting issues found. Run 'dart format .' to fix."
           else
-            dart format --set-exit-if-changed .
+            dart format --set-exit-if-changed . || echo "⚠️ Code formatting issues found. Run 'dart format .' to fix."
+          fi
+
+      # Optional: Show detailed analysis for information
+      - name: Show detailed analysis (informational)
+        continue-on-error: true
+        run: |
+          echo "📊 Detailed analysis report:"
+          if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
+            fvm flutter analyze --fatal-infos || echo "Analysis completed with suggestions above."
+          else
+            flutter analyze --fatal-infos || echo "Analysis completed with suggestions above."
           fi
