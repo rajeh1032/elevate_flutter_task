@@ -3,58 +3,89 @@ name: Flutter Lint Check
 on:
   push:
     branches:
-      - "**" # أي فرع
+      - "**"
   pull_request:
     branches:
-      - "**" # أي PR على أي فرع
+      - "**"
 
 jobs:
   lint:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        flutter_mode: [fvm, normal] # هيجرب FVM و Flutter العادي
-
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # Install Dart (لـ FVM)
+      # Try FVM first, fallback to normal Flutter
       - name: Install Dart
-        if: matrix.flutter_mode == 'fvm'
         uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
 
-      - name: Install FVM
-        if: matrix.flutter_mode == 'fvm'
-        run: dart pub global activate fvm
-
-      - name: Install Flutter (FVM)
-        if: matrix.flutter_mode == 'fvm'
+      - name: Check for FVM configuration
+        id: check_fvm
         run: |
-          fvm install
-          fvm use
-          fvm flutter --version
+          if [ -f ".fvmrc" ]; then
+            echo "use_fvm=true" >> $GITHUB_OUTPUT
+            echo "📁 Found .fvmrc file - will use FVM"
+          else
+            echo "use_fvm=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No .fvmrc file - will use normal Flutter setup"
+          fi
 
-      - name: Install Flutter (normal)
-        if: matrix.flutter_mode == 'normal'
+      # FVM Setup (if .fvmrc exists)
+      - name: Setup Flutter with FVM
+        if: steps.check_fvm.outputs.use_fvm == 'true'
+        run: |
+          dart pub global activate fvm
+          fvm install
+          fvm use --force
+          echo "$(fvm dart --version)"
+          echo "$(fvm flutter --version)"
+
+      # Normal Flutter Setup (if no .fvmrc)
+      - name: Setup Flutter (normal)
+        if: steps.check_fvm.outputs.use_fvm == 'false'
         uses: subosito/flutter-action@v2
         with:
-          channel: stable # ممكن تغيرها لـ beta أو master
-        # flutter --version
+          channel: stable
+          flutter-version: "3.24.3"
+          cache: true
 
+      # Cache dependencies
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.tool_cache }}/flutter
+            ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      # Install dependencies
       - name: Install dependencies
         run: |
-          if [ "${{ matrix.flutter_mode }}" == "fvm" ]; then
+          if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
             fvm flutter pub get
           else
             flutter pub get
           fi
 
+      # Run analysis
       - name: Run Flutter Analyze
         run: |
-          if [ "${{ matrix.flutter_mode }}" == "fvm" ]; then
-            fvm flutter analyze
+          if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
+            fvm flutter analyze --fatal-infos
           else
-            flutter analyze
+            flutter analyze --fatal-infos
+          fi
+
+      # Check formatting
+      - name: Check code formatting
+        run: |
+          if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
+            fvm dart format --set-exit-if-changed .
+          else
+            dart format --set-exit-if-changed .
           fi
