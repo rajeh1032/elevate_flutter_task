@@ -1,10 +1,8 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:either_dart/src/either.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movies/Data/Data%20Sources/remote/product_remote_data_source.dart';
 import 'package:movies/Data/Models/GetProductsDm.dart';
-import 'package:movies/Domain/entitys/GetProductsEntity.dart';
 import 'package:movies/core/api%20manager/api_endpoints.dart';
 import 'package:movies/core/api%20manager/api_manager.dart';
 import 'package:movies/core/utils/failures.dart';
@@ -25,8 +23,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
           path: ApiEndpoints.getAllProducts,
         );
 
-        print("RESPONSE Profile BODY: ${response.data}");
-        print("STATUS Profile CODE: ${response.statusCode}");
+      
 
           final List<GetProductsDm> productList = (response.data as List)
             .map((e) => GetProductsDm.fromJson(e))

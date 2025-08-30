@@ -1,5 +1,5 @@
 import 'package:either_dart/either.dart';
-import 'package:movies/Domain/entitys/GetProductsEntity.dart';
+import 'package:movies/Domain/entitys/get_products_entity.dart';
 import 'package:movies/core/utils/failures.dart';
 
 abstract class ProductRepository {

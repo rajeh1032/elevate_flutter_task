@@ -1,4 +1,4 @@
-import 'package:movies/Domain/entitys/GetProductsEntity.dart';
+import 'package:movies/Domain/entitys/get_products_entity.dart';
 
 class GetProductsDm extends GetProductsEntity {
   GetProductsDm({

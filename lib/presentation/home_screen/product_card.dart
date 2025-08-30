@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:movies/core/assets/app_assets.dart';
 import 'package:movies/core/theme/app_colors.dart';
 import 'package:movies/core/theme/app_styles.dart';
 
@@ -14,7 +13,8 @@ class ProductCard extends StatelessWidget {
   double? rating;
 
   ProductCard(
-      {required this.image,
+      {
+        required this.image,
       required this.title,
       required this.price,
       required this.description,
