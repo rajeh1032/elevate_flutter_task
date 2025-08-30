@@ -1,39 +1,120 @@
 name: Flutter Lint Check
 
 on:
-  pull_request:
-    types: [opened, edited, synchronize, reopened]
   push:
     branches:
-      - main
-      - develop
-      - feature/**
-      - hotfix/**
-      - bugfix/**
+      - '**'   # أي فرع
+  pull_request:
+    branches:
+      - '**'   # أي PR على أي فرع
 
 jobs:
   lint:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        flutter_mode: [fvm, normal] # هيجرب FVM و Flutter العادي
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # Install Dart (needed for FVM)
+      # Install Dart (لـ FVM)
       - name: Install Dart
+        if: matrix.flutter_mode == 'fvm'
         uses: dart-lang/setup-dart@v1
 
       - name: Install FVM
+        if: matrix.flutter_mode == 'fvm'
         run: dart pub global activate fvm
 
-      - name: Install Flutter from .fvmrc
-        run: fvm install
+      - name: Install Flutter (FVM)
+        if: matrix.flutter_mode == 'fvm'
+        run: |
+          fvm install
+          fvm use
+          fvm flutter --version
 
-      - name: Use Flutter from .fvmrc
-        run: fvm use
+      - name: Install Flutter (normal)
+        if: matrix.flutter_mode == 'normal'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable # ممكن تغيرها لـ beta أو master
+        # flutter --version
 
       - name: Install dependencies
-        run: fvm flutter pub get
+        run: |
+          if [ "${{ matrix.flutter_mode }}" == "fvm" ]; then
+            fvm flutter pub get
+          else
+            flutter pub get
+          fi
 
       - name: Run Flutter Analyze
-        run: fvm flutter analyze
+        run: |
+          if [ "${{ matrix.flutter_mode }}" == "fvm" ]; then
+            fvm flutter analyze
+          else
+            flutter analyze
+          fi
+name: Flutter Lint Check
+
+on:
+  push:
+    branches:
+      - '**'   # أي فرع
+  pull_request:
+    branches:
+      - '**'   # أي PR على أي فرع
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        flutter_mode: [fvm, normal] # هيجرب FVM و Flutter العادي
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # Install Dart (لـ FVM)
+      - name: Install Dart
+        if: matrix.flutter_mode == 'fvm'
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install FVM
+        if: matrix.flutter_mode == 'fvm'
+        run: dart pub global activate fvm
+
+      - name: Install Flutter (FVM)
+        if: matrix.flutter_mode == 'fvm'
+        run: |
+          fvm install
+          fvm use
+          fvm flutter --version
+
+      - name: Install Flutter (normal)
+        if: matrix.flutter_mode == 'normal'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable # ممكن تغيرها لـ beta أو master
+        # flutter --version
+
+      - name: Install dependencies
+        run: |
+          if [ "${{ matrix.flutter_mode }}" == "fvm" ]; then
+            fvm flutter pub get
+          else
+            flutter pub get
+          fi
+
+      - name: Run Flutter Analyze
+        run: |
+          if [ "${{ matrix.flutter_mode }}" == "fvm" ]; then
+            fvm flutter analyze
+          else
+            flutter analyze
+          fi
