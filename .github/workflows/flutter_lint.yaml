@@ -11,7 +11,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -27,10 +27,8 @@ jobs:
         run: |
           if [ -f ".fvmrc" ]; then
             echo "use_fvm=true" >> $GITHUB_OUTPUT
-            echo "📁 Found .fvmrc file - will use FVM"
           else
             echo "use_fvm=false" >> $GITHUB_OUTPUT
-            echo "⚠️ No .fvmrc file - will use normal Flutter setup"
           fi
 
       # FVM Setup (if .fvmrc exists)
@@ -40,8 +38,6 @@ jobs:
           dart pub global activate fvm
           fvm install
           fvm use --force
-          echo "$(fvm dart --version)"
-          echo "$(fvm flutter --version)"
 
       # Normal Flutter Setup (if no .fvmrc)
       - name: Setup Flutter (normal)
@@ -49,7 +45,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.24.3'
+          flutter-version: "3.24.3"
           cache: true
 
       # Cache dependencies
@@ -72,35 +68,44 @@ jobs:
             flutter pub get
           fi
 
-      # Run analysis (continue on error for now)
+      # Run analysis (Warning only)
       - name: Run Flutter Analyze
+        id: analyze
         continue-on-error: true
         run: |
-          echo "🔍 Running Flutter analyze (non-blocking)"
+          echo "🔍 Running Flutter analyze..."
           if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            fvm flutter analyze || echo "⚠️ Analysis found issues - please review above"
+            fvm flutter analyze || echo "ANALYZE_WARNINGS=true" >> $GITHUB_ENV
           else
-            flutter analyze || echo "⚠️ Analysis found issues - please review above"
+            flutter analyze || echo "ANALYZE_WARNINGS=true" >> $GITHUB_ENV
           fi
 
-      # Check formatting (but don't fail on it, just report)
+      # Check formatting (Blocker)
       - name: Check code formatting
-        continue-on-error: true
+        id: format
         run: |
-          echo "📝 Checking code formatting"
+          echo "📝 Checking code formatting..."
           if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            fvm dart format --set-exit-if-changed . || echo "⚠️ Code formatting issues found. Run 'dart format .' to fix."
+            fvm dart format --set-exit-if-changed .
           else
-            dart format --set-exit-if-changed . || echo "⚠️ Code formatting issues found. Run 'dart format .' to fix."
+            dart format --set-exit-if-changed .
           fi
 
-      # Optional: Show detailed analysis for information
-      - name: Show detailed analysis (informational)
-        continue-on-error: true
+      # Final Summary
+      - name: Summary
+        if: always()
         run: |
-          echo "📊 Detailed analysis report:"
-          if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            fvm flutter analyze --fatal-infos || echo "Analysis completed with suggestions above."
+          echo "## 🚀 Lint Summary" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$ANALYZE_WARNINGS" == "true" ]; then
+            echo "⚠️ Flutter Analyze: Warnings found" >> $GITHUB_STEP_SUMMARY
           else
-            flutter analyze --fatal-infos || echo "Analysis completed with suggestions above."
+            echo "✅ Flutter Analyze: Passed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ steps.format.outcome }}" == "failure" ]; then
+            echo "❌ Dart Format: Failed" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "✅ Dart Format: Passed" >> $GITHUB_STEP_SUMMARY
           fi
