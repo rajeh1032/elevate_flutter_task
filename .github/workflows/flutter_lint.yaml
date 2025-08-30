@@ -17,15 +17,19 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      # Install Dart (needed for FVM)
+      - name: Install Dart
+        uses: dart-lang/setup-dart@v1
 
       - name: Install FVM
         run: dart pub global activate fvm
 
-      - name: Install Flutter version from .fvmrc
+      - name: Install Flutter from .fvmrc
         run: fvm install
 
-      - name: Use Flutter version from .fvmrc
+      - name: Use Flutter from .fvmrc
         run: fvm use
 
       - name: Install dependencies
@@ -33,4 +37,3 @@ jobs:
 
       - name: Run Flutter Analyze
         run: fvm flutter analyze
-     
