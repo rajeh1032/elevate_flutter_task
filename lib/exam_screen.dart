@@ -12,9 +12,8 @@ class ExamData {
   factory ExamData.fromJson(Map<String, dynamic> json) {
     return ExamData(
       message: json['message'],
-      questions: (json['questions'] as List)
-          .map((q) => Question.fromJson(q))
-          .toList(),
+      questions:
+          (json['questions'] as List).map((q) => Question.fromJson(q)).toList(),
     );
   }
 }
@@ -42,9 +41,8 @@ class Question {
     return Question(
       id: json['_id'],
       question: json['question'],
-      answers: (json['answers'] as List)
-          .map((a) => Answer.fromJson(a))
-          .toList(),
+      answers:
+          (json['answers'] as List).map((a) => Answer.fromJson(a)).toList(),
       type: json['type'],
       correct: json['correct'],
       subject: Subject.fromJson(json['subject']),
@@ -106,7 +104,9 @@ class Exam {
 
 // Main Exam Screen
 class ExamScreen extends StatefulWidget {
-  const ExamScreen({Key? key}) : super(key: key);
+  const ExamScreen({
+    super.key,
+  });
 
   @override
   _ExamScreenState createState() => _ExamScreenState();
@@ -275,7 +275,8 @@ class _ExamScreenState extends State<ExamScreen> {
   @override
   Widget build(BuildContext context) {
     final currentQuestion = examData.questions[currentQuestionIndex];
-    final progress = (currentQuestionIndex + 1) / currentQuestion.exam.numberOfQuestions;
+    final progress =
+        (currentQuestionIndex + 1) / currentQuestion.exam.numberOfQuestions;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -296,15 +297,19 @@ class _ExamScreenState extends State<ExamScreen> {
                     children: [
                       // Signal bars
                       Row(
-                        children: List.generate(4, (index) => Container(
-                          width: 3,
-                          height: 12,
-                          margin: const EdgeInsets.only(right: 2),
-                          decoration: BoxDecoration(
-                            color: index < 3 ? Colors.black : Colors.grey[300],
-                            borderRadius: BorderRadius.circular(1),
-                          ),
-                        )),
+                        children: List.generate(
+                            4,
+                            (index) => Container(
+                                  width: 3,
+                                  height: 12,
+                                  margin: const EdgeInsets.only(right: 2),
+                                  decoration: BoxDecoration(
+                                    color: index < 3
+                                        ? Colors.black
+                                        : Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(1),
+                                  ),
+                                )),
                       ),
                       const SizedBox(width: 4),
                       // WiFi icon
@@ -336,7 +341,8 @@ class _ExamScreenState extends State<ExamScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: Colors.grey, width: 0.5)),
+                border:
+                    Border(bottom: BorderSide(color: Colors.grey, width: 0.5)),
               ),
               child: Row(
                 children: [
@@ -347,12 +353,14 @@ class _ExamScreenState extends State<ExamScreen> {
                   const SizedBox(width: 12),
                   Text(
                     currentQuestion.exam.title,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.w600),
                   ),
                   const Spacer(),
                   Row(
                     children: [
-                      Icon(Icons.access_time, size: 20, color: _getTimerColor()),
+                      Icon(Icons.access_time,
+                          size: 20, color: _getTimerColor()),
                       const SizedBox(width: 4),
                       Text(
                         _formatTime(timeRemaining),
@@ -379,17 +387,20 @@ class _ExamScreenState extends State<ExamScreen> {
                     children: [
                       Text(
                         'Question ${currentQuestionIndex + 1} of ${currentQuestion.exam.numberOfQuestions}',
-                        style: const TextStyle(color: Colors.grey, fontSize: 14),
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 14),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.grey[100],
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           currentQuestion.subject.name,
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          style:
+                              const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                       ),
                     ],
@@ -398,7 +409,8 @@ class _ExamScreenState extends State<ExamScreen> {
                   LinearProgressIndicator(
                     value: progress,
                     backgroundColor: Colors.grey[300],
-                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Colors.blue),
                   ),
                 ],
               ),
@@ -417,24 +429,28 @@ class _ExamScreenState extends State<ExamScreen> {
                         Expanded(
                           child: Text(
                             currentQuestion.question,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w500),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: currentQuestion.type == 'single_choice' 
-                                ? Colors.blue[50] 
+                            color: currentQuestion.type == 'single_choice'
+                                ? Colors.blue[50]
                                 : Colors.green[50],
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            currentQuestion.type == 'single_choice' ? 'Single' : 'Multiple',
+                            currentQuestion.type == 'single_choice'
+                                ? 'Single'
+                                : 'Multiple',
                             style: TextStyle(
                               fontSize: 10,
-                              color: currentQuestion.type == 'single_choice' 
-                                  ? Colors.blue[600] 
+                              color: currentQuestion.type == 'single_choice'
+                                  ? Colors.blue[600]
                                   : Colors.green[600],
                               fontWeight: FontWeight.w500,
                             ),
@@ -451,7 +467,7 @@ class _ExamScreenState extends State<ExamScreen> {
                         itemBuilder: (context, index) {
                           final answer = currentQuestion.answers[index];
                           final isSelected = _isAnswerSelected(answer.key);
-                          
+
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             child: GestureDetector(
@@ -460,11 +476,15 @@ class _ExamScreenState extends State<ExamScreen> {
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: isSelected ? Colors.blue : Colors.grey[300]!,
+                                    color: isSelected
+                                        ? Colors.blue
+                                        : Colors.grey[300]!,
                                     width: isSelected ? 2 : 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12),
-                                  color: currentQuestion.type == 'multiple_choice' && isSelected
+                                  color: currentQuestion.type ==
+                                              'multiple_choice' &&
+                                          isSelected
                                       ? Colors.blue[50]
                                       : Colors.white,
                                 ),
@@ -475,14 +495,19 @@ class _ExamScreenState extends State<ExamScreen> {
                                       height: 20,
                                       decoration: BoxDecoration(
                                         border: Border.all(
-                                          color: isSelected ? Colors.blue : Colors.grey[400]!,
+                                          color: isSelected
+                                              ? Colors.blue
+                                              : Colors.grey[400]!,
                                           width: 2,
                                         ),
                                         borderRadius: BorderRadius.circular(4),
-                                        color: isSelected ? Colors.blue : Colors.white,
+                                        color: isSelected
+                                            ? Colors.blue
+                                            : Colors.white,
                                       ),
                                       child: isSelected
-                                          ? const Icon(Icons.check, color: Colors.white, size: 14)
+                                          ? const Icon(Icons.check,
+                                              color: Colors.white, size: 14)
                                           : null,
                                     ),
                                     const SizedBox(width: 12),
@@ -519,7 +544,8 @@ class _ExamScreenState extends State<ExamScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: currentQuestionIndex > 0 ? _previousQuestion : null,
+                      onPressed:
+                          currentQuestionIndex > 0 ? _previousQuestion : null,
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: const BorderSide(color: Colors.blue, width: 2),
@@ -529,16 +555,18 @@ class _ExamScreenState extends State<ExamScreen> {
                       ),
                       child: const Text(
                         'Back',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: currentQuestionIndex < examData.questions.length - 1 
-                          ? _nextQuestion 
-                          : null,
+                      onPressed:
+                          currentQuestionIndex < examData.questions.length - 1
+                              ? _nextQuestion
+                              : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue[600],
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -549,7 +577,7 @@ class _ExamScreenState extends State<ExamScreen> {
                       child: const Text(
                         'Next',
                         style: TextStyle(
-                          fontSize: 16, 
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
@@ -568,7 +596,7 @@ class _ExamScreenState extends State<ExamScreen> {
 
 // Main App
 class ExamApp extends StatelessWidget {
-  const ExamApp({Key? key}) : super(key: key);
+  const ExamApp({super.key});
 
   @override
   Widget build(BuildContext context) {

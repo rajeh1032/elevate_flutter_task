@@ -7,6 +7,5 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.white,
     fontFamily: GoogleFonts.inter().fontFamily,
     primaryColor: AppColors.blue,
- 
   );
 }

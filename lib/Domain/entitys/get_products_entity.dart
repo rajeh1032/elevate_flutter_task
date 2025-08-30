@@ -16,7 +16,8 @@ class GetProductsEntity {
     description = json['description'];
     category = json['category'];
     image = json['image'];
-    rating = json['rating'] != null ? RatingEntity.fromJson(json['rating']) : null;
+    rating =
+        json['rating'] != null ? RatingEntity.fromJson(json['rating']) : null;
   }
 
   int? id;

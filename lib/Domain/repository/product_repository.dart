@@ -3,5 +3,5 @@ import 'package:movies/Domain/entitys/get_products_entity.dart';
 import 'package:movies/core/utils/failures.dart';
 
 abstract class ProductRepository {
-   Future<Either<Failures, List<GetProductsEntity>>> getProducts();
+  Future<Either<Failures, List<GetProductsEntity>>> getProducts();
 }

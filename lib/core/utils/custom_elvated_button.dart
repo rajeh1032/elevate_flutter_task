@@ -38,10 +38,7 @@ class CustomElvatedButton extends StatelessWidget {
         padding: padding ?? EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius ?? 16),
-          side: BorderSide(
-            color: borderColor ?? Colors.transparent, 
-            width: 2
-          ),
+          side: BorderSide(color: borderColor ?? Colors.transparent, width: 2),
         ),
       ),
       child: Center(
@@ -59,9 +56,9 @@ class CustomElvatedButton extends StatelessWidget {
                 svgIcon!,
                 width: iconSize ?? 24,
                 height: iconSize ?? 24,
-                colorFilter: iconColor != null 
-                  ? ColorFilter.mode(iconColor!, BlendMode.srcIn)
-                  : null,
+                colorFilter: iconColor != null
+                    ? ColorFilter.mode(iconColor!, BlendMode.srcIn)
+                    : null,
               ),
             ],
           ],

@@ -1,4 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+// ignore: implementation_imports
 import 'package:either_dart/src/either.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movies/Data/Data%20Sources/remote/product_remote_data_source.dart';
@@ -23,9 +24,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
           path: ApiEndpoints.getAllProducts,
         );
 
-      
-
-          final List<GetProductsDm> productList = (response.data as List)
+        final List<GetProductsDm> productList = (response.data as List)
             .map((e) => GetProductsDm.fromJson(e))
             .toList();
 
@@ -38,7 +37,6 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         return Left(NetworkError(errorMessage: "No Internet Connection"));
       }
     } catch (e) {
-      print("ERROR: $e");
       return Left(ServerError(errorMessage: e.toString()));
     }
   }

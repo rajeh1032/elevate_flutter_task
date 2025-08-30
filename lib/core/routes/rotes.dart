@@ -4,8 +4,6 @@ import 'package:movies/presentation/home_screen/ui/home_screen.dart';
 
 abstract class Routes {
   static Map<String, Widget Function(BuildContext)> myAppRoutes = {
-    RoutesName.homeScreenRoute:(_) => HomeScreen(),
-   
-  
+    RoutesName.homeScreenRoute: (_) => HomeScreen(),
   };
 }
