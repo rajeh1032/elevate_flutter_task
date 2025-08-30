@@ -68,45 +68,67 @@ jobs:
             flutter pub get
           fi
 
-      # Run analysis (Warning only)
+      # Run analysis (non-blocking warnings)
       - name: Run Flutter Analyze
         id: analyze
-        continue-on-error: true
         run: |
-          echo "🔍 Running Flutter analyze..."
+          echo "Running Flutter analyze..."
+          ANALYZE_EXIT_CODE=0
           if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            fvm flutter analyze || echo "ANALYZE_WARNINGS=true" >> $GITHUB_ENV
+            fvm flutter analyze || ANALYZE_EXIT_CODE=$?
           else
-            flutter analyze || echo "ANALYZE_WARNINGS=true" >> $GITHUB_ENV
+            flutter analyze || ANALYZE_EXIT_CODE=$?
           fi
 
-            # Check formatting (Blocker but controlled)
+          if [ $ANALYZE_EXIT_CODE -ne 0 ]; then
+            echo "analyze_warnings=true" >> $GITHUB_OUTPUT
+            echo "Warning: Analysis found issues"
+          else
+            echo "analyze_warnings=false" >> $GITHUB_OUTPUT
+            echo "Analysis passed successfully"
+          fi
+
+      # Check formatting (blocking)
       - name: Check code formatting
         id: format
-        continue-on-error: true
         run: |
-          echo "📝 Checking code formatting..."
+          echo "Checking code formatting..."
           if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            fvm dart format --output=none --set-exit-if-changed . || echo "FORMAT_FAILED=true" >> $GITHUB_ENV
+            if fvm dart format --output=none --set-exit-if-changed .; then
+              echo "format_failed=false" >> $GITHUB_OUTPUT
+              echo "Code formatting is correct"
+            else
+              echo "format_failed=true" >> $GITHUB_OUTPUT
+              echo "Code formatting issues found"
+              echo "Run 'dart format .' to fix formatting issues"
+              exit 1
+            fi
           else
-            dart format --output=none --set-exit-if-changed . || echo "FORMAT_FAILED=true" >> $GITHUB_ENV
+            if dart format --output=none --set-exit-if-changed .; then
+              echo "format_failed=false" >> $GITHUB_OUTPUT
+              echo "Code formatting is correct"
+            else
+              echo "format_failed=true" >> $GITHUB_OUTPUT
+              echo "Code formatting issues found" 
+              echo "Run 'dart format .' to fix formatting issues"
+              exit 1
+            fi
           fi
 
-      # Final Summary
+      # Final Summary (only runs if formatting passed)
       - name: Summary
         if: always()
         run: |
-          echo "## 🚀 Lint Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Flutter Lint Summary" >> $GITHUB_STEP_SUMMARY
 
-          if [ "$ANALYZE_WARNINGS" == "true" ]; then
-            echo "⚠️ Flutter Analyze: Warnings found" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.analyze.outputs.analyze_warnings }}" == "true" ]; then
+            echo "- Analysis: Found warnings (review recommended)" >> $GITHUB_STEP_SUMMARY
           else
-            echo "✅ Flutter Analyze: Passed" >> $GITHUB_STEP_SUMMARY
+            echo "- Analysis: Passed" >> $GITHUB_STEP_SUMMARY
           fi
 
-          if [ "$FORMAT_FAILED" == "true" ]; then
-            echo "❌ Dart Format: Failed" >> $GITHUB_STEP_SUMMARY
-            exit 1
+          if [ "${{ steps.format.outputs.format_failed }}" == "true" ]; then
+            echo "- Formatting: Failed (must fix)" >> $GITHUB_STEP_SUMMARY
           else
-            echo "✅ Dart Format: Passed" >> $GITHUB_STEP_SUMMARY
+            echo "- Formatting: Passed" >> $GITHUB_STEP_SUMMARY
           fi
