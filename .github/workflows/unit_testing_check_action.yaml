@@ -28,3 +28,5 @@ jobs:
         run: flutter pub get
       - name: Run test
         run: flutter test test
+      - name: Install FVM
+        run: dart pub global activate fvm  

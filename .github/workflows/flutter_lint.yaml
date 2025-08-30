@@ -33,3 +33,5 @@ jobs:
 
       - name: Run Flutter Analyze
         run: fvm flutter analyze
+      - name: Install FVM
+        run: dart pub global activate fvm
