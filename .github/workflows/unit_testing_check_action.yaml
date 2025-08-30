@@ -1,0 +1,30 @@
+## name of your github action
+name: Flutter Unit Testing Action
+
+## when will the action trigger
+on:
+  push:
+    branches:
+      - main
+      - development
+      - release/*
+      - feature/*
+  pull_request:
+
+## the action script
+jobs:
+  testing:
+    runs-on: ubuntu-latest # 1 minute will count as 1
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v5
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.29.2
+      - run: flutter --version
+      - name: Install packages
+        run: flutter pub get
+      - name: Run test
+        run: flutter test test

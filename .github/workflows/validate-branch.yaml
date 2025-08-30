@@ -1,0 +1,28 @@
+name: Validate Branch Name
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  validate-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch name
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF}"
+          echo "Checking branch name: $BRANCH_NAME"
+
+          # Regex explanation:
+          # ^(bugfix|hotfix|release)\/
+          # ( [A-Z]+-[0-9]+   for ticket e.g., ECOM-27 )
+          # (-[A-Za-z0-9._-]+)*   for task name parts
+          #
+          if [[ ! "$BRANCH_NAME" =~ ^(bugfix|hotfix|release)\/([A-Z]+-[0-9]+)(-[A-Za-z0-9._-]+)*$ ]]; then
+            echo "❌ Invalid branch name!"
+            echo "👉 Expected format: bugfix|hotfix|release/{PROJECT-ID-TICKETNUM}-Task-Name"
+            echo "✅ Examples: bugfix/ECOM-27-Fix-Checkout, hotfix/APP-102-Crash-On-Startup, release/1.0.0"
+            exit 1
+          fi
+
+          echo "✅ Branch name is valid!"
