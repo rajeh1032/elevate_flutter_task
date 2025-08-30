@@ -80,15 +80,16 @@ jobs:
             flutter analyze || echo "ANALYZE_WARNINGS=true" >> $GITHUB_ENV
           fi
 
-      # Check formatting (Blocker)
+            # Check formatting (Blocker but controlled)
       - name: Check code formatting
         id: format
+        continue-on-error: true
         run: |
           echo "📝 Checking code formatting..."
           if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            fvm dart format --set-exit-if-changed .
+            fvm dart format --output=none --set-exit-if-changed . || echo "FORMAT_FAILED=true" >> $GITHUB_ENV
           else
-            dart format --set-exit-if-changed .
+            dart format --output=none --set-exit-if-changed . || echo "FORMAT_FAILED=true" >> $GITHUB_ENV
           fi
 
       # Final Summary
@@ -103,7 +104,7 @@ jobs:
             echo "✅ Flutter Analyze: Passed" >> $GITHUB_STEP_SUMMARY
           fi
 
-          if [ "${{ steps.format.outcome }}" == "failure" ]; then
+          if [ "$FORMAT_FAILED" == "true" ]; then
             echo "❌ Dart Format: Failed" >> $GITHUB_STEP_SUMMARY
             exit 1
           else
