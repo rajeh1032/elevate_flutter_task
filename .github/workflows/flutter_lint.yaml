@@ -132,3 +132,5 @@ jobs:
           else
             echo "- Formatting: Passed" >> $GITHUB_STEP_SUMMARY
           fi
+      - name: Auto fix formatting
+        run: dart format .
