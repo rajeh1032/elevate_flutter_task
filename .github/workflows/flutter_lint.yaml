@@ -1,7 +1,6 @@
 name: Flutter Lint Check
 
 on:
-  
   pull_request:
     branches:
       - "**"

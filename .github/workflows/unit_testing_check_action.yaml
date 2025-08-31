@@ -1,8 +1,6 @@
 name: Flutter Unit Testing Action
 
 on:
-  push:
-
   pull_request:
 
 jobs:
