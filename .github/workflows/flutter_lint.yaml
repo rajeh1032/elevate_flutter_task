@@ -27,8 +27,13 @@ jobs:
         run: |
           if [ -f ".fvmrc" ]; then
             echo "use_fvm=true" >> $GITHUB_OUTPUT
+            echo "Found .fvmrc - will use FVM"
+          elif [ -f ".fvm/fvm_config.json" ]; then
+            echo "use_fvm=true" >> $GITHUB_OUTPUT
+            echo "Found .fvm/fvm_config.json - will use FVM"
           else
             echo "use_fvm=false" >> $GITHUB_OUTPUT
+            echo "No FVM config found - will use latest stable Flutter"
           fi
 
       # FVM Setup (if .fvmrc exists)
@@ -38,15 +43,25 @@ jobs:
           dart pub global activate fvm
           fvm install
           fvm use --force
+          echo "Flutter version via FVM:"
+          fvm flutter --version
 
-      # Normal Flutter Setup (if no .fvmrc)
-      - name: Setup Flutter (normal)
+      # Normal Flutter Setup (if no .fvmrc) - uses latest stable
+      - name: Setup Flutter (latest stable)
         if: steps.check_fvm.outputs.use_fvm == 'false'
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: "3.24.3"
           cache: true
+
+      # Display Flutter version for debugging
+      - name: Display Flutter version
+        run: |
+          if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
+            fvm flutter --version
+          else
+            flutter --version
+          fi
 
       # Cache dependencies
       - name: Cache pub dependencies
@@ -88,49 +103,64 @@ jobs:
             echo "Analysis passed successfully"
           fi
 
-      # Check formatting (blocking)
-      - name: Check code formatting
-        id: format
+      # Auto fix formatting first
+      - name: Auto fix formatting
         run: |
-          echo "Checking code formatting..."
+          echo "Auto-fixing code formatting..."
           if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            if fvm dart format --output=none --set-exit-if-changed .; then
-              echo "format_failed=false" >> $GITHUB_OUTPUT
-              echo "Code formatting is correct"
-            else
-              echo "format_failed=true" >> $GITHUB_OUTPUT
-              echo "Code formatting issues found"
-              echo "Run 'dart format .' to fix formatting issues"
-              exit 1
-            fi
+            fvm dart format .
           else
-            if dart format --output=none --set-exit-if-changed .; then
-              echo "format_failed=false" >> $GITHUB_OUTPUT
-              echo "Code formatting is correct"
-            else
-              echo "format_failed=true" >> $GITHUB_OUTPUT
-              echo "Code formatting issues found" 
-              echo "Run 'dart format .' to fix formatting issues"
-              exit 1
-            fi
+            dart format .
           fi
 
-      # Final Summary (only runs if formatting passed)
+      # Check if formatting changed anything
+      - name: Check if formatting was needed
+        id: format
+        run: |
+          if git diff --quiet; then
+            echo "format_changed=false" >> $GITHUB_OUTPUT
+            echo "No formatting changes needed"
+          else
+            echo "format_changed=true" >> $GITHUB_OUTPUT
+            echo "Formatting changes were applied"
+            git diff --name-only
+          fi
+
+      # Commit formatting changes if any (optional)
+      - name: Commit formatting changes
+        if: steps.format.outputs.format_changed == 'true' && github.event_name == 'push'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Auto-fix: Apply dart format" -m "Automated formatting applied by GitHub Actions" || echo "No changes to commit"
+          git push || echo "No changes to push"
+
+      # Final Summary
       - name: Summary
         if: always()
         run: |
           echo "## Flutter Lint Summary" >> $GITHUB_STEP_SUMMARY
 
+          # Flutter version info
+          if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
+            FLUTTER_VERSION=$(fvm flutter --version | head -n 1)
+            echo "- Flutter Version: $FLUTTER_VERSION (via FVM)" >> $GITHUB_STEP_SUMMARY
+          else
+            FLUTTER_VERSION=$(flutter --version | head -n 1)
+            echo "- Flutter Version: $FLUTTER_VERSION (latest stable)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Analysis results
           if [ "${{ steps.analyze.outputs.analyze_warnings }}" == "true" ]; then
             echo "- Analysis: Found warnings (review recommended)" >> $GITHUB_STEP_SUMMARY
           else
             echo "- Analysis: Passed" >> $GITHUB_STEP_SUMMARY
           fi
 
-          if [ "${{ steps.format.outputs.format_failed }}" == "true" ]; then
-            echo "- Formatting: Failed (must fix)" >> $GITHUB_STEP_SUMMARY
+          # Formatting results
+          if [ "${{ steps.format.outputs.format_changed }}" == "true" ]; then
+            echo "- Formatting: Auto-fixed and applied" >> $GITHUB_STEP_SUMMARY
           else
-            echo "- Formatting: Passed" >> $GITHUB_STEP_SUMMARY
+            echo "- Formatting: Already correct" >> $GITHUB_STEP_SUMMARY
           fi
-      - name: Auto fix formatting
-        run: dart format .
