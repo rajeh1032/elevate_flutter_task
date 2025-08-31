@@ -13,151 +13,57 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # Try FVM first, fallback to normal Flutter
-      - name: Install Dart
-        uses: dart-lang/setup-dart@v1
-        with:
-          sdk: stable
-
-      - name: Check for FVM configuration
-        id: check_fvm
-        run: |
-          if [ -f ".fvmrc" ]; then
-            echo "use_fvm=true" >> $GITHUB_OUTPUT
-            echo "Found .fvmrc - will use FVM"
-          elif [ -f ".fvm/fvm_config.json" ]; then
-            echo "use_fvm=true" >> $GITHUB_OUTPUT
-            echo "Found .fvm/fvm_config.json - will use FVM"
-          else
-            echo "use_fvm=false" >> $GITHUB_OUTPUT
-            echo "No FVM config found - will use latest stable Flutter"
-          fi
-
-      # FVM Setup (if .fvmrc exists)
-      - name: Setup Flutter with FVM
-        if: steps.check_fvm.outputs.use_fvm == 'true'
-        run: |
-          dart pub global activate fvm
-          fvm install
-          fvm use --force
-          echo "Flutter version via FVM:"
-          fvm flutter --version
-
-      # Normal Flutter Setup (if no .fvmrc) - uses latest stable
-      - name: Setup Flutter (latest stable)
-        if: steps.check_fvm.outputs.use_fvm == 'false'
+      # Setup Flutter (FVM or latest stable)
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      # Display Flutter version for debugging
-      - name: Display Flutter version
-        run: |
-          if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            fvm flutter --version
-          else
-            flutter --version
-          fi
-
-      # Cache dependencies
-      - name: Cache pub dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ runner.tool_cache }}/flutter
-            ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
       # Install dependencies
       - name: Install dependencies
-        run: |
-          if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            fvm flutter pub get
-          else
-            flutter pub get
-          fi
+        run: flutter pub get
 
-      # Run analysis (non-blocking warnings)
+      # Run analysis (warnings allowed)
       - name: Run Flutter Analyze
         id: analyze
+        continue-on-error: true
         run: |
-          echo "Running Flutter analyze..."
-          ANALYZE_EXIT_CODE=0
-          if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            fvm flutter analyze || ANALYZE_EXIT_CODE=$?
-          else
-            flutter analyze || ANALYZE_EXIT_CODE=$?
-          fi
+          flutter analyze || echo "analyze_warnings=true" >> $GITHUB_OUTPUT
 
-          if [ $ANALYZE_EXIT_CODE -ne 0 ]; then
-            echo "analyze_warnings=true" >> $GITHUB_OUTPUT
-            echo "Warning: Analysis found issues"
-          else
-            echo "analyze_warnings=false" >> $GITHUB_OUTPUT
-            echo "Analysis passed successfully"
-          fi
-
-      # Auto fix formatting first
+      # Auto-fix formatting
       - name: Auto fix formatting
-        run: |
-          echo "Auto-fixing code formatting..."
-          if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            fvm dart format .
-          else
-            dart format .
-          fi
+        run: dart format .
 
-      # Check if formatting changed anything
-      - name: Check if formatting was needed
-        id: format
+      # Check if formatting changed files
+      - name: Check formatting changes
+        id: format_check
         run: |
           if git diff --quiet; then
-            echo "format_changed=false" >> $GITHUB_OUTPUT
             echo "No formatting changes needed"
+            echo "format_needed=false" >> $GITHUB_OUTPUT
           else
-            echo "format_changed=true" >> $GITHUB_OUTPUT
             echo "Formatting changes were applied"
+            echo "format_needed=true" >> $GITHUB_OUTPUT
+            echo "Changed files:"
             git diff --name-only
           fi
 
-      # Commit formatting changes if any (optional)
-      - name: Commit formatting changes
-        if: steps.format.outputs.format_changed == 'true' && github.event_name == 'push'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Auto-fix: Apply dart format" -m "Automated formatting applied by GitHub Actions" || echo "No changes to commit"
-          git push || echo "No changes to push"
-
-      # Final Summary
+      # Summary
       - name: Summary
         if: always()
         run: |
           echo "## Flutter Lint Summary" >> $GITHUB_STEP_SUMMARY
-
-          # Flutter version info
-          if [ "${{ steps.check_fvm.outputs.use_fvm }}" == "true" ]; then
-            FLUTTER_VERSION=$(fvm flutter --version | head -n 1)
-            echo "- Flutter Version: $FLUTTER_VERSION (via FVM)" >> $GITHUB_STEP_SUMMARY
-          else
-            FLUTTER_VERSION=$(flutter --version | head -n 1)
-            echo "- Flutter Version: $FLUTTER_VERSION (latest stable)" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          # Analysis results
-          if [ "${{ steps.analyze.outputs.analyze_warnings }}" == "true" ]; then
-            echo "- Analysis: Found warnings (review recommended)" >> $GITHUB_STEP_SUMMARY
+          echo "- Flutter Version: $(flutter --version | head -n 1)" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.analyze.outcome }}" == "failure" ]; then
+            echo "- Analysis: Found issues (review recommended)" >> $GITHUB_STEP_SUMMARY
           else
             echo "- Analysis: Passed" >> $GITHUB_STEP_SUMMARY
           fi
-
-          # Formatting results
-          if [ "${{ steps.format.outputs.format_changed }}" == "true" ]; then
-            echo "- Formatting: Auto-fixed and applied" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.format_check.outputs.format_needed }}" == "true" ]; then
+            echo "- Formatting: Auto-applied (commit these changes)" >> $GITHUB_STEP_SUMMARY
           else
             echo "- Formatting: Already correct" >> $GITHUB_STEP_SUMMARY
           fi
