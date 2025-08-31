@@ -3,12 +3,6 @@ name: Flutter Unit Testing Action
 
 ## when will the action trigger
 on:
-  push:
-    branches:
-      - main
-      - development
-      - release/*
-      - feature/*
   pull_request:
 
 ## the action script
