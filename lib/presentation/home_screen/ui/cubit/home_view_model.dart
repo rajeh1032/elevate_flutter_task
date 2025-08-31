@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movies/Domain/use_cases/get_product_use_case.dart';
 import 'package:movies/presentation/home_screen/ui/cubit/home_state.dart';
+
 @injectable
 class HomeViewModel extends Cubit<HomeStates> {
   GetProductUseCase productUseCase;

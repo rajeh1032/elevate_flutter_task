@@ -1,4 +1,4 @@
-import 'package:movies/Domain/entitys/GetProductsEntity.dart';
+import 'package:movies/Domain/entitys/get_products_entity.dart';
 
 class GetProductsDm extends GetProductsEntity {
   GetProductsDm({
@@ -21,6 +21,7 @@ class GetProductsDm extends GetProductsEntity {
     rating = json['rating'] != null ? RatingDm.fromJson(json['rating']) : null;
   }
 
+  @override
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['id'] = id;
@@ -47,6 +48,7 @@ class RatingDm extends RatingEntity {
     count = json['count'];
   }
 
+  @override
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['rate'] = rate;

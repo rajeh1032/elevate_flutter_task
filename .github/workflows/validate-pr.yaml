@@ -1,9 +1,7 @@
 name: Validate PR Title
-
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
-
 jobs:
   validate-pr-title:
     runs-on: ubuntu-latest
@@ -11,24 +9,19 @@ jobs:
       - name: Validate PR title format
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
-          echo "🔎 Checking PR title: $PR_TITLE"
-
+          echo ":mag_right: Checking PR title: $PR_TITLE"
           # Regex explanation:
-          # ^(fix|release|feat|hotfix|build|test)
-          #   → allowed types
-          # \(
-          #   ( [A-Z]+-[0-9]+ | JIRA-[0-9]+ )
-          #   → allowed scopes
-          # \):
-          #   [A-Z]+-[0-9]+-.* → ticket num + task name
+          # ^(fix|release|feat|hotfix|build|test) → allowed types
+          # / → must have slash
+          # [A-Z]+-[0-9]+ → JIRA ticket (e.g., FECA-123)
+          # ( .+)? → description/branch name after a space
           #
-          if [[ ! "$PR_TITLE" =~ ^(fix|release|feat|hotfix|build|test)\((([A-Z]+-[0-9]+)|(JIRA-[0-9]+))\):\ [A-Z]+-[0-9]+-.*$ ]]; then
-            echo "❌ Invalid PR title!"
-            echo "👉 Expected format: type(scope): {TicketNum}-task-name"
-            echo "✅ Examples:"
-            echo "   feat(ECOM-27): ECOM-27-Initialize-Project"
-            echo "   fix(JIRA-101): JIRA-101-Fix-Checkout-Bug"
+          if [[ ! "$PR_TITLE" =~ ^(fix|release|feat|hotfix|build|test)/[A-Z]+-[0-9]+(\ .+)?$ ]]; then
+            echo ":x: Invalid PR title!"
+            echo ":point_right: Expected format: type/TICKET-NUMBER Description"
+            echo ":white_check_mark: Examples:"
+            echo "   feat/FECA-27 Initialize project"
+            echo "   fix/FECA-101 Fix checkout bug"
             exit 1
           fi
-
-          echo "✅ PR title is valid!"
+          echo ":white_check_mark: PR title is valid!"

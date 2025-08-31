@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:movies/Domain/entitys/GetProductsEntity.dart';
 import 'package:movies/core/assets/app_assets.dart';
 import 'package:movies/core/di/di.dart';
 import 'package:movies/core/theme/app_colors.dart';
@@ -23,7 +22,6 @@ class _HomeScreenState extends State<HomeScreen> {
   HomeViewModel viewModel = getIt<HomeViewModel>();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     viewModel.getData();
   }
@@ -55,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Error',
                     style: AppStyles.bold20LightBlue,
                   ),
+                  SizedBox(height: 8.h),
                   SizedBox(height: 8.h),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 32.w),

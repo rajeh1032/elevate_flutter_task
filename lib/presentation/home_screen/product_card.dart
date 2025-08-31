@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:movies/core/assets/app_assets.dart';
 import 'package:movies/core/theme/app_colors.dart';
 import 'package:movies/core/theme/app_styles.dart';
 
+// ignore: must_be_immutable
 class ProductCard extends StatelessWidget {
   String image;
   String title;
@@ -19,8 +19,7 @@ class ProductCard extends StatelessWidget {
       required this.price,
       required this.description,
       this.rating,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +45,7 @@ class ProductCard extends StatelessWidget {
               ),
               child: CachedNetworkImage(
                 //todo: add image
-                imageUrl: image ?? "",
+                imageUrl: image,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => const Center(
                   child: CircularProgressIndicator(),
@@ -93,7 +92,7 @@ class ProductCard extends StatelessWidget {
                     children: [
                       Text(
                         //todo: add price
-                        'EGP ${price}',
+                        'EGP $price',
                         style: AppStyles.regular16darkBlue.copyWith(
                           fontWeight: FontWeight.bold,
                           fontSize: 14.sp,
@@ -125,7 +124,7 @@ class ProductCard extends StatelessWidget {
                             SizedBox(width: 2.w),
                             Text(
                               //todo: add rating
-                              "review(${rating})" ?? '',
+                              "review($rating)",
                               style: AppStyles.regular16darkBlue.copyWith(
                                 fontSize: 12.sp,
                               ),
