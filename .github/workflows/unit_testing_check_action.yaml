@@ -2,11 +2,7 @@ name: Flutter Unit Testing Action
 
 on:
   push:
-    branches:
-      - main
-      - development
-      - release/*
-      - feature/*
+
   pull_request:
 
 jobs:
