@@ -104,9 +104,7 @@ class Exam {
 
 // Main Exam Screen
 class ExamScreen extends StatefulWidget {
-  const ExamScreen({
-    super.key,
-  });
+  const ExamScreen({super.key});
 
   @override
   _ExamScreenState createState() => _ExamScreenState();
